@@ -134,7 +134,7 @@ npm start
 
 The build script sets `NEXT_PUBLIC_DEMO_MODE=true`. All seven pages reuse the established dashboard; incidents are synthetic examples, health is unobserved, and investigation history has no fabricated diagnoses. Historical cards are bundled examples; semantic search and investigation actions are disabled. Browser preferences remain local to the visitor.
 
-`NEXT_PUBLIC_*` variables are public build-time values, never a place for secrets. Rebuild when switching modes. The Vercel configuration intentionally uses `build:demo`; the default local `npm run build -- --webpack` remains available for full-stack mode.
+`NEXT_PUBLIC_*` variables are public build-time values, never a place for secrets. Rebuild when switching modes. The Vercel configuration uses `build:vercel`, selecting synthetic demo by default or hosted API only when explicitly enabled; the default local `npm run build -- --webpack` remains available for full-stack mode.
 
 See [deployment preparation](docs/DEPLOYMENT_GUIDE.md) and [publication review](docs/PUBLICATION_READINESS.md). Public source: [rrayyann7811/OpsGuard-AI](https://github.com/rrayyann7811/OpsGuard-AI). **Vercel deployment remains separately authorized and has not been performed.**
 

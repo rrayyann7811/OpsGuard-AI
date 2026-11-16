@@ -89,7 +89,7 @@ After separate deployment authorization:
 
 1. Connect only the approved GitHub repository to the owner's Vercel account.
 2. Import a new project; select **Root Directory: `frontend`** and **Framework: Next.js**.
-3. Install command: **`npm ci`**. Build command: **`npm run build:demo`**. Output directory: **Next.js default**. These commands are also specified in frontend/vercel.json.
+3. Install command: **`npm ci`**. Build command: **`npm run build:vercel`**. Output directory: **Next.js default**. These commands are specified in frontend/vercel.json; without hosted API selection this builds the synthetic demo. The explicit build:demo command remains available as an intentional demo-only override.
 4. Choose a currently supported Node.js version satisfying package.json (`>=22.18.0`); select 22.x or a later supported compatible major and confirm the actual build log. No Node version was provisioned here.
 5. Use the same demo build for Preview and Production. No API URL or credential is required. The build command explicitly sets `NEXT_PUBLIC_DEMO_MODE=true` regardless of a stale API origin. Do not override it with a generic `npm run build` for the public showcase.
 6. Review the build preview, then execute the actual deployment only when authorized. Verify the visible synthetic-data banner, every route, details/filters, empty investigations and disabled inference/search. Network inspection must show no calls to localhost, FastAPI, Ollama or an AI provider.
