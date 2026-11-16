@@ -1,0 +1,9 @@
+# Phase 3 schema decisions
+
+The Phase 2 v1 producer envelope is unchanged. FastAPI accepts all twelve required fields and rejects extras. UUIDs and timezone-aware timestamps are validated. Service names are constrained to the same three values. Limits on text length and body size protect storage. Secrets are redacted before persistence; original non-sensitive evidence is retained in an event JSON column. Producer warning/error severity is retained there and mapped to medium/high incident severity (503/504 errors map to critical).
+
+Two additive SQLite tables store incidents and immutable events. Event ID is unique; incident signatures are indexed but not unique because resolved/out-of-window occurrences create new incidents. Schema creation uses SQLAlchemy create_all at startup and does not replace Phase 1 tables. Future structural changes require migrations.
+
+Signatures hash service, error type, whitespace/case-normalized and UUID-normalized message, endpoint, HTTP status and the first normalized stack frame. Stack line/column and absolute checkout prefixes are excluded. This deliberately preserves ordinary numeric evidence to avoid merging unrelated failures. Deduplication uses a configurable 300-second receipt-time window and only OPEN/INVESTIGATING incidents. Event first/last-seen use min/max source timestamps; last_received_at uses receipt time; updated_at also reflects status edits. SQLite BEGIN IMMEDIATE serializes ingestion; event_id protects retried delivery. Resolved incidents remain resolved; a new occurrence creates a new incident. Management requires explicit reopening.
+
+Read APIs are local monitoring APIs. Webhooks use a server-only bearer token. Status changes require a separate token, an explicit development flag, and a loopback client. No deletion API is provided. Demo cleanup is restricted to a specifically created disposable database directory and explicit confirmation.

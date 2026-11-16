@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpsGuard incident event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "service_name",
+    "timestamp",
+    "severity",
+    "error_type",
+    "error_message",
+    "stack_trace",
+    "http_status",
+    "request_id",
+    "endpoint",
+    "duration_ms"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "service_name": {
+      "enum": ["user-service", "order-service", "payment-service"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "severity": {
+      "enum": ["warning", "error"]
+    },
+    "error_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "error_message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stack_trace": {
+      "type": ["string", "null"]
+    },
+    "http_status": {
+      "type": "integer",
+      "minimum": 400,
+      "maximum": 599
+    },
+    "request_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "endpoint": {
+      "type": "string",
+      "pattern": "^/"
+    },
+    "duration_ms": {
+      "type": "number",
+      "minimum": 0
+    }
+  }
+}

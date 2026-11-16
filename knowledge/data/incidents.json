@@ -1,0 +1,602 @@
+[
+  {
+    "id": "SYN-USR-001",
+    "title": "User registration accepts an absent email",
+    "service_name": "user-service",
+    "symptoms": "Missing required registration fields reached persistence and produced a 500 instead of a validation response.",
+    "error_type": "ValidationError",
+    "error_message": "email is required",
+    "root_cause": "The registration handler read optional JSON fields without validating email before insertion.",
+    "resolution": "Validate name and email before persistence and return a 400 with a safe field error.",
+    "technology": [
+      "Express",
+      "JSON validation"
+    ],
+    "severity": "high",
+    "incident_date": "2026-01-01",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Reproduce with an empty email",
+      "Add boundary validation",
+      "Verify invalid input is rejected and valid registration succeeds"
+    ],
+    "code_context": "const email = request.body.email; validateEmail(email);",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-USR-002",
+    "title": "Null user profile dereference",
+    "service_name": "user-service",
+    "symptoms": "Profile lookup intermittently returned 500 for accounts without an optional profile.",
+    "error_type": "TypeError",
+    "error_message": "Cannot read properties of null (reading 'displayName')",
+    "root_cause": "The profile repository legitimately returned null, but the response mapper assumed an object.",
+    "resolution": "Handle missing profiles explicitly with defaults and test newly registered accounts.",
+    "technology": [
+      "Node.js",
+      "Express"
+    ],
+    "severity": "high",
+    "incident_date": "2026-01-02",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Create an account without profile metadata",
+      "Guard the nullable repository result",
+      "Test both missing and populated profiles"
+    ],
+    "code_context": "return user.profile.displayName;",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-USR-003",
+    "title": "User database connection refused",
+    "service_name": "user-service",
+    "symptoms": "User reads failed with 503 while the health process remained alive.",
+    "error_type": "DatabaseConnectionError",
+    "error_message": "connect ECONNREFUSED user-db:5432",
+    "root_cause": "The user database hostname pointed to an unavailable development database after a configuration edit.",
+    "resolution": "Restore the database address and validate connection configuration before accepting requests.",
+    "technology": [
+      "PostgreSQL",
+      "Node.js"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-01-03",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Check database reachability",
+      "Inspect configured host without printing credentials",
+      "Restore endpoint and verify user lookup"
+    ],
+    "code_context": "userRepository.findById(id);",
+    "http_status": 503,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-USR-004",
+    "title": "Authentication signing key mismatch",
+    "service_name": "user-service",
+    "symptoms": "Previously valid sessions consistently failed verification immediately after a local key rotation.",
+    "error_type": "AuthenticationError",
+    "error_message": "invalid signature during session verification",
+    "root_cause": "One user-service process kept the previous signing key while other processes issued tokens with the new key.",
+    "resolution": "Deploy consistent verification keys and support a bounded overlap during rotation.",
+    "technology": [
+      "JWT",
+      "Node.js"
+    ],
+    "severity": "high",
+    "incident_date": "2026-01-04",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Compare configured key identifiers",
+      "Synchronize verification key sets",
+      "Test old and new sessions during overlap"
+    ],
+    "code_context": "verifySession(token, verificationKeys);",
+    "http_status": 401,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-USR-005",
+    "title": "User dependency timeout during registration",
+    "service_name": "user-service",
+    "symptoms": "Registration became slow and then failed when the profile enrichment endpoint did not respond.",
+    "error_type": "RequestTimeout",
+    "error_message": "Profile enrichment exceeded 1000ms deadline",
+    "root_cause": "An optional enrichment call had no independent timeout and delayed core registration.",
+    "resolution": "Set a deadline and degrade optional enrichment without losing the user creation result.",
+    "technology": [
+      "HTTP",
+      "AbortController"
+    ],
+    "severity": "high",
+    "incident_date": "2026-01-05",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Simulate a stalled enrichment response",
+      "Apply an abortable timeout",
+      "Verify registration recovers without enrichment"
+    ],
+    "code_context": "await fetch(profileUrl, { signal: AbortSignal.timeout(1000) });",
+    "http_status": 504,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-USR-006",
+    "title": "Invalid authentication issuer configuration",
+    "service_name": "user-service",
+    "symptoms": "All authentication attempts were rejected after restarting with an incomplete issuer setting.",
+    "error_type": "ConfigurationError",
+    "error_message": "AUTH_ISSUER must be a nonempty URL",
+    "root_cause": "Startup configuration validation accepted an empty issuer and the verifier rejected every session later.",
+    "resolution": "Validate authentication issuer at startup and restore the expected trusted issuer.",
+    "technology": [
+      "Environment configuration",
+      "JWT"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-01-06",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Inspect issuer configuration",
+      "Reject invalid settings before readiness",
+      "Test a valid issuer and a wrong issuer"
+    ],
+    "code_context": "validateIssuer(process.env.AUTH_ISSUER);",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-USR-007",
+    "title": "Slow user lookup from missing query index",
+    "service_name": "user-service",
+    "symptoms": "User lookup latency rose as a local fixture dataset grew, while CPU and database access stayed available.",
+    "error_type": "SlowQuery",
+    "error_message": "user email lookup exceeded 500ms budget",
+    "root_cause": "A normalized-email equality lookup scanned the user table because the expected unique index was absent.",
+    "resolution": "Add the email lookup index after checking duplicates and verify the query plan.",
+    "technology": [
+      "SQLite",
+      "SQL indexes"
+    ],
+    "severity": "medium",
+    "incident_date": "2026-01-07",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Measure query latency",
+      "Inspect query plan and duplicate emails",
+      "Create the correct index and compare latency"
+    ],
+    "code_context": "SELECT id FROM users WHERE normalized_email = ?;",
+    "http_status": 503,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-USR-008",
+    "title": "Unbounded user response cache causes heap pressure",
+    "service_name": "user-service",
+    "symptoms": "The process consumed increasing memory during repeated distinct user lookups and eventually returned 500.",
+    "error_type": "ResourceLimitError",
+    "error_message": "JavaScript heap limit reached in user cache",
+    "root_cause": "A response cache had no entry limit or expiry, so distinct user IDs retained objects indefinitely.",
+    "resolution": "Bound cache entries and TTL, evict expired objects, and test memory under a fixed request budget.",
+    "technology": [
+      "Node.js",
+      "LRU cache"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-01-08",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Inspect cache cardinality",
+      "Add maximum entries and expiry",
+      "Run a bounded load test and check recovery"
+    ],
+    "code_context": "cache.set(userId, response); // requires size and TTL limits",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-001",
+    "title": "Order amount missing from request",
+    "service_name": "order-service",
+    "symptoms": "Submitting an order without an amount returned a server error and created inconsistent downstream requests.",
+    "error_type": "ValidationError",
+    "error_message": "amount_cents is required",
+    "root_cause": "Order creation delegated to the payment adapter before validating integer monetary input.",
+    "resolution": "Validate positive integer cents before writing an order or contacting payment.",
+    "technology": [
+      "Express",
+      "Integer cents"
+    ],
+    "severity": "high",
+    "incident_date": "2026-02-01",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Send an order without amount_cents",
+      "Reject noninteger and absent values",
+      "Confirm invalid orders have no side effects"
+    ],
+    "code_context": "validatePositiveCents(body.amount_cents);",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-002",
+    "title": "Undefined cart item causes checkout crash",
+    "service_name": "order-service",
+    "symptoms": "Checkout returned 500 for an empty cart while nonempty carts worked.",
+    "error_type": "TypeError",
+    "error_message": "Cannot read properties of undefined (reading 'price_cents')",
+    "root_cause": "Checkout accessed items[0] before checking that the cart contained a line item.",
+    "resolution": "Reject empty carts and validate every line item before calculating totals.",
+    "technology": [
+      "JavaScript",
+      "Express"
+    ],
+    "severity": "high",
+    "incident_date": "2026-02-02",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Reproduce with an empty items array",
+      "Validate cart length and line shapes",
+      "Test empty, malformed and valid carts"
+    ],
+    "code_context": "const firstPrice = cart.items[0].price_cents;",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-003",
+    "title": "Order database pool exhausted",
+    "service_name": "order-service",
+    "symptoms": "Concurrent order requests timed out waiting for connections although the database server was reachable.",
+    "error_type": "DatabasePoolTimeout",
+    "error_message": "Timed out acquiring order database connection",
+    "root_cause": "An exception path omitted transaction cleanup and leaked checked-out database connections.",
+    "resolution": "Always close transactions in a finally block and right-size bounded connection pooling.",
+    "technology": [
+      "SQL transactions",
+      "Connection pool"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-02-03",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Inspect checked-out connection count",
+      "Fix transaction cleanup on failures",
+      "Repeat bounded concurrent order requests"
+    ],
+    "code_context": "try { await tx.createOrder(); } finally { await tx.close(); }",
+    "http_status": 503,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-004",
+    "title": "User service unavailable during order validation",
+    "service_name": "order-service",
+    "symptoms": "Order creation returned 503 because required user lookups could not connect to the user service.",
+    "error_type": "DependencyUnavailable",
+    "error_message": "User service unavailable",
+    "root_cause": "The configured user-service URL used localhost inside an order container, which addressed that container itself.",
+    "resolution": "Use the configured service DNS name on the container network, or the host loopback address for direct Node runs.",
+    "technology": [
+      "Docker networking",
+      "HTTP"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-02-04",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Check USER_SERVICE_URL",
+      "Verify service DNS and health",
+      "Retry user validation with a known user"
+    ],
+    "code_context": "fetch(new URL(`/users/${userId}`, USER_SERVICE_URL));",
+    "http_status": 503,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-005",
+    "title": "Repeated checkout 500 after faulty commit",
+    "service_name": "order-service",
+    "symptoms": "Every order request returned 500 immediately after a change to the repository return value.",
+    "error_type": "OrderProcessingError",
+    "error_message": "Cannot destructure order id from undefined",
+    "root_cause": "A faulty commit removed the return statement from createOrder, while the controller still expected an order object.",
+    "resolution": "Restore the return contract and add an integration test for the controller and repository.",
+    "technology": [
+      "Git regression",
+      "JavaScript"
+    ],
+    "severity": "high",
+    "incident_date": "2026-02-05",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Compare the changed return contract",
+      "Restore the missing return statement",
+      "Run order creation and retrieval tests"
+    ],
+    "code_context": "async function createOrder() { return repository.insert(); }",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-006",
+    "title": "Order queue accumulates during slow payment dependency",
+    "service_name": "order-service",
+    "symptoms": "Checkout latency increased and in-flight requests grew when payment processing slowed.",
+    "error_type": "SlowDependency",
+    "error_message": "Payment dependency exceeded 500ms latency budget",
+    "root_cause": "Order handling kept starting payment calls without concurrency limits or a deadline during downstream slowdown.",
+    "resolution": "Apply bounded concurrency and abortable payment deadlines; return a controlled dependency error.",
+    "technology": [
+      "HTTP",
+      "Backpressure"
+    ],
+    "severity": "high",
+    "incident_date": "2026-02-06",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Measure in-flight payment calls",
+      "Set concurrency and deadline limits",
+      "Verify recovery when payment latency returns to normal"
+    ],
+    "code_context": "await paymentClient.process(order, { timeoutMs: 500 });",
+    "http_status": 503,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-007",
+    "title": "Order status configuration invalid",
+    "service_name": "order-service",
+    "symptoms": "Order creation failed at startup after an unsupported initial status was configured.",
+    "error_type": "ConfigurationError",
+    "error_message": "INITIAL_ORDER_STATUS is not an allowed value",
+    "root_cause": "A development environment override introduced a status outside the schema enum.",
+    "resolution": "Validate enum configuration at startup and restore the supported CREATED initial state.",
+    "technology": [
+      "Environment configuration",
+      "Schema validation"
+    ],
+    "severity": "high",
+    "incident_date": "2026-02-07",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Compare status enum with environment setting",
+      "Fail readiness on unsupported configuration",
+      "Create and retrieve a test order"
+    ],
+    "code_context": "const initialStatus = validateStatus(process.env.INITIAL_ORDER_STATUS);",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-ORD-008",
+    "title": "Oversized cart exhausts request resources",
+    "service_name": "order-service",
+    "symptoms": "A very large cart caused excessive parsing and pricing work before the API rejected it.",
+    "error_type": "PayloadTooLarge",
+    "error_message": "Order cart exceeds the allowed item count",
+    "root_cause": "The order API limited bytes weakly and did not cap line-item count, permitting expensive request work.",
+    "resolution": "Bound request body size and cart item count before pricing and reject oversized requests with 413.",
+    "technology": [
+      "Express",
+      "Request limits"
+    ],
+    "severity": "medium",
+    "incident_date": "2026-02-08",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Send a bounded oversized fixture",
+      "Apply byte and item count limits",
+      "Verify valid carts remain accepted"
+    ],
+    "code_context": "if (items.length > MAX_ITEMS) throw new PayloadTooLarge();",
+    "http_status": 413,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-001",
+    "title": "Payment amount absent from JSON request",
+    "service_name": "payment-service",
+    "symptoms": "Payment processing returned a controlled validation error when the caller omitted the amount.",
+    "error_type": "ValidationError",
+    "error_message": "Positive integer amount_cents is required",
+    "root_cause": "The caller sent an order identifier but omitted the required integer-cent payment amount.",
+    "resolution": "Keep validation at the payment boundary and correct the caller payload before retrying.",
+    "technology": [
+      "Express",
+      "Payment validation"
+    ],
+    "severity": "medium",
+    "incident_date": "2026-03-01",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Inspect the request shape without logging secrets",
+      "Require positive integer amount_cents",
+      "Test missing, zero, fractional and valid amounts"
+    ],
+    "code_context": "if (!Number.isSafeInteger(amount_cents) || amount_cents <= 0) reject();",
+    "http_status": 400,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-002",
+    "title": "Null payment provider result dereferenced",
+    "service_name": "payment-service",
+    "symptoms": "Payments returned 500 when the provider returned no transaction object.",
+    "error_type": "TypeError",
+    "error_message": "Cannot read properties of null (reading 'transactionId')",
+    "root_cause": "A provider adapter returned null for a rejected authorization, but the handler treated every result as successful.",
+    "resolution": "Validate provider response shape and map rejection to a controlled payment failure.",
+    "technology": [
+      "Node.js",
+      "Payment adapter"
+    ],
+    "severity": "high",
+    "incident_date": "2026-03-02",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Simulate an empty provider result",
+      "Guard transaction response fields",
+      "Verify rejection does not mark payment processed"
+    ],
+    "code_context": "const id = providerResult.transactionId;",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-003",
+    "title": "Payment ledger database connection failure",
+    "service_name": "payment-service",
+    "symptoms": "Payment status writes failed with 503 after the ledger database became unreachable.",
+    "error_type": "DatabaseConnectionError",
+    "error_message": "Payment ledger database connection refused",
+    "root_cause": "The ledger connection address changed without updating the payment-service connection configuration.",
+    "resolution": "Restore ledger connectivity, verify configuration, and reconcile pending records before retrying charges.",
+    "technology": [
+      "SQL",
+      "Payment ledger"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-03-03",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Check ledger availability",
+      "Restore connection settings",
+      "Reconcile status before retrying to avoid double charges"
+    ],
+    "code_context": "await ledger.recordPayment(payment);",
+    "http_status": 503,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-004",
+    "title": "Fee subtraction introduced payment total regression",
+    "service_name": "payment-service",
+    "symptoms": "Payment totals were below the base amount after a small arithmetic change.",
+    "error_type": "CalculationRegression",
+    "error_message": "Payment total violated fee invariant",
+    "root_cause": "A faulty revision subtracted the rounded two-percent processing fee instead of adding it.",
+    "resolution": "Restore integer-cent fee addition and test fixed totals, rounding boundaries and the total invariant.",
+    "technology": [
+      "Git regression",
+      "Integer arithmetic"
+    ],
+    "severity": "high",
+    "incident_date": "2026-03-04",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Reproduce with amount_cents 10000",
+      "Expect total_cents 10200",
+      "Test rounding and fee invariant before release"
+    ],
+    "code_context": "const total_cents = amount_cents + Math.round(amount_cents * 0.02);",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-005",
+    "title": "Payment provider deadline exceeded",
+    "service_name": "payment-service",
+    "symptoms": "Payment requests waited for a stalled upstream processor and returned a controlled timeout.",
+    "error_type": "RequestTimeout",
+    "error_message": "Payment processor exceeded 1000ms deadline",
+    "root_cause": "The remote payment processor stopped responding within the allowed request budget.",
+    "resolution": "Abort the upstream request at the deadline and reconcile provider status before a bounded retry.",
+    "technology": [
+      "HTTP",
+      "AbortController"
+    ],
+    "severity": "high",
+    "incident_date": "2026-03-05",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Simulate a stalled processor",
+      "Verify abort at the configured deadline",
+      "Check transaction status before retrying"
+    ],
+    "code_context": "fetch(providerUrl, { signal: AbortSignal.timeout(1000) });",
+    "http_status": 504,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-006",
+    "title": "Invalid payment fee configuration",
+    "service_name": "payment-service",
+    "symptoms": "All payment attempts failed fee validation after a nonnumeric rate was configured.",
+    "error_type": "ConfigurationError",
+    "error_message": "Payment fee configuration is invalid",
+    "root_cause": "An environment override set the fee rate to text, which propagated into arithmetic as NaN.",
+    "resolution": "Validate finite numeric rates at startup, restore the rate, and verify expected integer totals.",
+    "technology": [
+      "Environment configuration",
+      "JavaScript"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-03-06",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Inspect the fee rate setting",
+      "Reject nonnumeric and out-of-range rates",
+      "Verify total for a known integer amount"
+    ],
+    "code_context": "if (!Number.isFinite(Number(FEE_RATE))) rejectConfig();",
+    "http_status": 500,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-007",
+    "title": "Payment processor repeatedly rejects authorization",
+    "service_name": "payment-service",
+    "symptoms": "Repeated payment attempts returned a controlled upstream rejection while the local process remained healthy.",
+    "error_type": "PaymentFailure",
+    "error_message": "Simulated payment processor rejection",
+    "root_cause": "The simulated upstream provider rejected the authorization; successful transport did not imply a successful payment.",
+    "resolution": "Inspect the provider rejection, preserve failed status, and retry only when the rejection condition is corrected.",
+    "technology": [
+      "HTTP",
+      "Payment authorization"
+    ],
+    "severity": "high",
+    "incident_date": "2026-03-07",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Check the processor response code",
+      "Keep payment status failed",
+      "Verify recovery with an accepted authorization"
+    ],
+    "code_context": "if (!provider.authorized) throw new PaymentFailure();",
+    "http_status": 502,
+    "synthetic": true
+  },
+  {
+    "id": "SYN-PAY-008",
+    "title": "Duplicate charge protection dependency unavailable",
+    "service_name": "payment-service",
+    "symptoms": "Payment retries were blocked when the idempotency store could not be reached.",
+    "error_type": "DependencyUnavailable",
+    "error_message": "Idempotency store unavailable; charge not submitted",
+    "root_cause": "The idempotency backend was unavailable, so proceeding could have submitted duplicate charges.",
+    "resolution": "Fail closed before charging, restore the idempotency store, and reuse the original operation key.",
+    "technology": [
+      "Redis",
+      "Idempotency"
+    ],
+    "severity": "critical",
+    "incident_date": "2026-03-08",
+    "source_ref": "knowledge/data/incidents.json (original synthetic dataset v1)",
+    "runbook": [
+      "Verify no charge was submitted",
+      "Restore idempotency storage",
+      "Retry with the same operation identifier"
+    ],
+    "code_context": "await idempotencyStore.reserve(operationId);",
+    "http_status": 503,
+    "synthetic": true
+  }
+]

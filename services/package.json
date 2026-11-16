@@ -1,0 +1,22 @@
+{
+  "name": "opsguard-services",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "start:user": "node user-service/index.js",
+    "start:order": "node order-service/index.js",
+    "start:payment": "node payment-service/index.js"
+  },
+  "dependencies": {
+    "express": "5.1.0"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  }
+}

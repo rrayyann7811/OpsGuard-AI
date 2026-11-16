@@ -1,0 +1,72 @@
+node_modules/
+.next/
+out/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.tsbuildinfo
+*.db
+.env
+.env.local
+.env.*.local
+.DS_Store
+coverage/
+
+# Disposable Phase 3 demo credentials and databases
+backend/.demo/
+
+# Phase 4 local search index and model assets
+knowledge/.qdrant/
+knowledge/.model-cache/
+backend/.venv-rag/
+
+# Credential/config variants; retain reviewed examples
+.env.*
+!.env.example
+!.env.*.example
+.envrc
+*.pem
+*.key
+
+# Python environments/caches and local tooling
+venv/
+env/
+.venv*/
+.mypy_cache/
+.ruff_cache/
+.vscode/
+.idea/
+
+# SQLite sidecars and alternative extensions
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.db-journal
+
+# Build output, local hosting metadata, logs and models
+.vercel/
+dist/
+build/
+*.log
+*.jsonl
+*.gguf
+*.onnx
+*.safetensors
+*.pt
+*.pth
+*.bin
+.cache/
+.huggingface/
+.ollama/
+.qdrant/
+.model-cache/
+*.swp
+*~
+Thumbs.db
+
+# Local verification/runtime evidence: opt in only reviewed summaries
+/docs/verification/
+/evaluation/
