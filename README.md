@@ -3,6 +3,10 @@
 **Intelligent Incident Monitoring and AI-Assisted Root-Cause Analysis**
 
 OpsGuard AI is a locally runnable operations dashboard for understanding microservice failures. It monitors three Express services, receives authenticated incident events, groups repeated failures, and preserves request evidence in SQLite. Historical retrieval uses local embeddings and Qdrant; a guarded investigation workflow assembles evidence and validates structured reports for human review.
+Live Website:
+🚀 https://ops-guard-ai-fx4l.vercel.app
+Backend API:
+⚙️ https://opsguard-ai-api.onrender.com/api/health
 
 ## Live Demo
 
