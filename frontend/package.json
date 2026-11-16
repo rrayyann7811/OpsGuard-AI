@@ -11,7 +11,9 @@
     "test": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build:demo": "NEXT_PUBLIC_DEMO_MODE=true next build --webpack"
+    "build:demo": "NEXT_PUBLIC_DEMO_MODE=true next build --webpack",
+    "build:hosted": "NEXT_PUBLIC_HOSTED_API=true NEXT_PUBLIC_DEMO_MODE=false next build --webpack",
+    "build:vercel": "node scripts/vercel-build.mjs"
   },
   "dependencies": {
     "lucide-react": "1.73.0",

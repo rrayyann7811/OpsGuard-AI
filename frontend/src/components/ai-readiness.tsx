@@ -1,5 +1,5 @@
 'use client';
-import { isPublicDemo } from '@/lib/runtime-mode';
+import { isPublicDemo, isHostedApi } from '@/lib/runtime-mode';
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { getData, timestamp } from '@/lib/monitoring';
@@ -44,8 +44,13 @@ const gib = (bytes: number | null | undefined) =>
   bytes == null ? 'Unknown' : `${(bytes / 1024 ** 3).toFixed(2)} GiB`;
 
 export function AIReadinessPanel() {
-  return isPublicDemo ? (
-    <Panel title="AI execution disabled" description="Public demonstration">
+  return isPublicDemo || isHostedApi ? (
+    <Panel
+      title="AI execution disabled"
+      description={
+        isHostedApi ? 'Hosted API — no model or worker deployed' : 'Public demonstration'
+      }
+    >
       <p className="readiness-body">
         No model, credentials or inference runtime is connected. No AI diagnosis is generated. Real
         local inference verification remains pending.

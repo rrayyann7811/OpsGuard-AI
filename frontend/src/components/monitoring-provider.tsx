@@ -1,5 +1,5 @@
 'use client';
-import { isPublicDemo } from '@/lib/runtime-mode';
+import { isPublicDemo, isHostedApi } from '@/lib/runtime-mode';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { getData, type Summary, type ServiceHealth } from '@/lib/monitoring';
 import { ErrorMessage, LoadingState } from './ui';
@@ -66,6 +66,15 @@ export function MonitoringNotice() {
     );
   if (summary.loading || services.loading)
     return <LoadingState label="Connecting live incident monitoring…" />;
+  if (isHostedApi)
+    return (
+      <div className="info-note">
+        <p>
+          Connected to the configured read-only API. Microservices are not deployed; no live health
+          checks or incident persistence are configured.
+        </p>
+      </div>
+    );
   return (
     <div className="demo-banner">
       <p>

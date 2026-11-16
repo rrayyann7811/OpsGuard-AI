@@ -70,3 +70,6 @@ Thumbs.db
 # Local verification/runtime evidence: opt in only reviewed summaries
 /docs/verification/
 /evaluation/
+
+# Safe hosted configuration example
+!backend/.env.hosted.example

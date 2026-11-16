@@ -1,4 +1,4 @@
-import { isPublicDemo } from './runtime-mode';
+import { isPublicDemo, isHostedApi } from './runtime-mode';
 import { apiUrl } from './health';
 export type AgentConfiguration = {
   available: boolean;
@@ -77,8 +77,10 @@ export async function investigationAction(
   body: object,
   signal: AbortSignal,
 ) {
-  if (isPublicDemo)
-    throw new Error('Investigation actions are disabled in the public demonstration.');
+  if (isPublicDemo || isHostedApi)
+    throw new Error(
+      'Investigation actions are disabled in public demonstration and hosted read-only modes.',
+    );
   const response = await fetch(apiUrl + path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

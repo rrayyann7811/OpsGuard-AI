@@ -317,7 +317,7 @@ def test_evaluation_rejects_test_double_and_keeps_absent_metrics_null():
     from pathlib import Path
     spec=importlib.util.spec_from_file_location('local_evaluation',Path(__file__).resolve().parents[2]/'scripts/evaluate-local-investigations.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-    result=module.evaluate([],json.loads((Path(__file__).resolve().parents[2]/'evaluation/investigation_cases.json').read_text()))
+    result=module.evaluate([],[{'id':'synthetic-unit-case'}])
     assert result['root_cause_accuracy'] is None and result['mean_investigation_duration_ms'] is None
     row={'case_id':'case','investigation':{'execution_metadata':{'mode':'test-double','backend':'local-ollama'}}}
     with pytest.raises(ValueError,match='genuine'): module.evaluate([row],[{'id':'case'}])

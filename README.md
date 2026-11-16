@@ -116,6 +116,14 @@ Open **http://127.0.0.1:3000**; API documentation is at **http://127.0.0.1:8000/
 
 Normal startup leaves fault injection off. For an authenticated incident demonstration, run `python3 scripts/prepare-incident-demo.py` from the root, then source the **exact environment path it prints** in both backend and payment terminals. This creates private matching credentials and isolated SQLite/Qdrant paths. Follow [the incident demonstration](docs/PHASE3_DEMO.md); never show tokens or modify the owner's primary database.
 
+## Option A: real hosted API connection (prepared, not deployed)
+
+A separate stateless FastAPI entry point, `app.hosted:app`, is prepared for Render. It exposes genuine API health and safe empty read-only summaries without SQLite, microservice polling, Qdrant or AI execution. The existing local `app.main:app` remains unchanged.
+
+The frontend supports **hosted API mode**, separately from the synthetic demo: set `NEXT_PUBLIC_HOSTED_API=true`, `NEXT_PUBLIC_DEMO_MODE=false` and `NEXT_PUBLIC_API_URL` to the actual public HTTPS backend origin. Configure backend `CORS_ORIGINS` for the exact actual frontend origin. No URLs are assigned by this preparation. See [Option A settings, persistence limits and verification](docs/CLOUD_OPTION_A.md).
+
+Vercel now uses `npm run build:vercel`: synthetic demo by default, real API mode only when explicitly selected. Neither mode is a fallback for the other. No deployment, paid resources, remote database or model service is provisioned here.
+
 ## Public website demonstration
 
 ```sh

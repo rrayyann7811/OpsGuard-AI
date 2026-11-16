@@ -1,4 +1,5 @@
 'use client';
+import { isHostedApi } from '@/lib/runtime-mode';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Search, X } from 'lucide-react';
 import {
@@ -266,7 +267,11 @@ export function IncidentTable({ compact = false }: { compact?: boolean }) {
         result.data && (
           <EmptyState
             title="No matching incidents"
-            description="Trigger a local service failure or adjust your filters."
+            description={
+              isHostedApi
+                ? 'This stateless API does not collect or retain incidents.'
+                : 'Trigger a local service failure or adjust your filters.'
+            }
           />
         )
       )}

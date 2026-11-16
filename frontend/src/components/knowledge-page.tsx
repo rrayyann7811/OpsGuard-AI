@@ -1,5 +1,5 @@
 'use client';
-import { isPublicDemo } from '@/lib/runtime-mode';
+import { isPublicDemo, isHostedApi } from '@/lib/runtime-mode';
 import { useEffect, useRef, useState } from 'react';
 import { BookOpen, Database, Search, X } from 'lucide-react';
 import { label, timestamp, type Page } from '@/lib/monitoring';
@@ -172,7 +172,11 @@ export function SimilarHistoricalIncidents({ incidentId }: { incidentId: string 
         Local AI analysis requires explicit runtime setup and authorization. Live inference remains
         unverified.
       </p>
-      <button className="button secondary" disabled={loading || isPublicDemo} onClick={search}>
+      <button
+        className="button secondary"
+        disabled={loading || isPublicDemo || isHostedApi}
+        onClick={search}
+      >
         Find Similar Historical Incidents
       </button>
       {loading && <LoadingState label="Loading local model and searching historical evidence…" />}
@@ -187,6 +191,18 @@ export function SimilarHistoricalIncidents({ incidentId }: { incidentId: string 
   );
 }
 export function KnowledgePage() {
+  return isHostedApi ? (
+    <Panel title="Historical knowledge unavailable" description="Not deployed on Option A">
+      <p className="readiness-body">
+        Qdrant and local embeddings are not deployed. Semantic search and historical sources remain
+        available only in the configured local application.
+      </p>
+    </Panel>
+  ) : (
+    <AvailableKnowledgePage />
+  );
+}
+function AvailableKnowledgePage() {
   const status = usePolling<KnowledgeStatus>('/api/knowledge/status');
   const [query, setQuery] = useState('');
   const [service, setService] = useState('');
@@ -329,7 +345,7 @@ export function KnowledgePage() {
             </select>
             <button
               className="button"
-              disabled={loading || isPublicDemo || query.trim().length < 3}
+              disabled={loading || isPublicDemo || isHostedApi || query.trim().length < 3}
               type="submit"
             >
               Search knowledge

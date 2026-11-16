@@ -1,5 +1,5 @@
 'use client';
-import { isPublicDemo } from '@/lib/runtime-mode';
+import { isPublicDemo, isHostedApi } from '@/lib/runtime-mode';
 import { InvestigationSummaryPanel } from './investigation-summary';
 import { InvestigationsPage } from './investigations-page';
 import { KnowledgePage } from './knowledge-page';
@@ -29,7 +29,9 @@ function PageTitle({ slug }: { slug: string }) {
         <span className="status-dot" />
         {isPublicDemo
           ? 'Synthetic demonstration · No live operations'
-          : 'Local workspace · Read-only investigations'}
+          : isHostedApi
+            ? 'Hosted API · Stateless and read-only'
+            : 'Local workspace · Read-only investigations'}
       </span>
     </div>
   );

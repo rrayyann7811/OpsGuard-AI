@@ -2,7 +2,7 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { expect, it, vi } from 'vitest';
-vi.mock('@/lib/runtime-mode', () => ({ isPublicDemo: true }));
+vi.mock('@/lib/runtime-mode', () => ({ isPublicDemo: true, isHostedApi: false }));
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
 import { Shell } from './shell';
 import { Dashboard } from './dashboard';

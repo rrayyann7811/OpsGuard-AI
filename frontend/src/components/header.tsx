@@ -1,4 +1,4 @@
-import { isPublicDemo } from '@/lib/runtime-mode';
+import { isPublicDemo, isHostedApi } from '@/lib/runtime-mode';
 import Link from 'next/link';
 import { Menu } from 'lucide-react';
 import { useHealth } from './health-provider';
@@ -27,7 +27,7 @@ export function Header({
       <div className="topbar-right">
         <span className="environment">
           <span />
-          {isPublicDemo ? 'Public demo' : 'Development'}
+          {isPublicDemo ? 'Public demo' : isHostedApi ? 'Hosted API' : 'Development'}
         </span>
         <Link
           href="/settings"

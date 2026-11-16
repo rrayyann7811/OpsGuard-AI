@@ -1,4 +1,5 @@
 'use client';
+import { isHostedApi } from '@/lib/runtime-mode';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Box, Search } from 'lucide-react';
@@ -51,7 +52,9 @@ export function ServiceCards({ compact = false }: { compact?: boolean }) {
                 <h3>{item.service_name}</h3>
                 <p>
                   {item.available === null
-                    ? 'Awaiting first check'
+                    ? isHostedApi
+                      ? 'Monitoring not configured'
+                      : 'Awaiting first check'
                     : item.available
                       ? 'Health endpoint responding'
                       : 'Health endpoint unavailable'}

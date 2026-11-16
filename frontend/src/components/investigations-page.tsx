@@ -1,4 +1,5 @@
 'use client';
+import { isHostedApi } from '@/lib/runtime-mode';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Activity, Clock3, FlaskConical, X } from 'lucide-react';
@@ -16,6 +17,13 @@ import {
 const terminal = new Set(['COMPLETED', 'FAILED', 'CANCELLED']);
 
 export function InvestigateAction({ incidentId }: { incidentId: string }) {
+  return isHostedApi ? (
+    <p>Investigation execution is disabled on the hosted read-only API.</p>
+  ) : (
+    <LocalInvestigateAction incidentId={incidentId} />
+  );
+}
+function LocalInvestigateAction({ incidentId }: { incidentId: string }) {
   const config = usePolling<AgentConfiguration>('/api/investigations/configuration');
   const [token, setToken] = useState('');
   const [authorized, setAuthorized] = useState(false);

@@ -1,5 +1,5 @@
 'use client';
-import { isPublicDemo } from '@/lib/runtime-mode';
+import { isPublicDemo, isHostedApi } from '@/lib/runtime-mode';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -88,6 +88,17 @@ function WorkspaceShell({ children }: { children: React.ReactNode }) {
               <span className="sample-tag">DEMO</span>
             </div>
           )}
+          {isHostedApi && (
+            <div className="demo-banner" role="note">
+              <p>
+                <strong>Hosted read-only API — stateless</strong>
+                <span>
+                  No incident storage, microservice monitoring, historical retrieval or AI execution
+                  is deployed. Empty counts are not production activity.
+                </span>
+              </p>
+            </div>
+          )}
           {children}
         </main>
         <footer className="app-footer">
@@ -95,7 +106,9 @@ function WorkspaceShell({ children }: { children: React.ReactNode }) {
             OpsGuard AI <span className="muted">/</span>{' '}
             {isPublicDemo
               ? 'Public synthetic demonstration'
-              : 'Local RAG · Read-only investigations'}
+              : isHostedApi
+                ? 'Hosted API · Stateless'
+                : 'Local RAG · Read-only investigations'}
           </span>
           <WorkspaceFooter />
         </footer>

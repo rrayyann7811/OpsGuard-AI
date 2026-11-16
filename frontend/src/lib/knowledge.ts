@@ -1,4 +1,4 @@
-import { isPublicDemo } from './runtime-mode';
+import { isPublicDemo, isHostedApi } from './runtime-mode';
 import { apiUrl } from './health';
 export type HistoricalIncident = {
   id: string;
@@ -51,7 +51,7 @@ export async function searchKnowledge(
   body: object,
   signal: AbortSignal,
 ): Promise<SearchResponse> {
-  if (isPublicDemo)
+  if (isPublicDemo || isHostedApi)
     throw new Error('Semantic search is local-only. Browse the bundled synthetic examples.');
   const response = await fetch(apiUrl + path, {
     method: 'POST',

@@ -1,0 +1,28 @@
+# Prepared only. Do not apply/import without deployment authorization.
+services:
+  - type: web
+    name: opsguard-ai-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.lock.txt
+    startCommand: sh render-start.sh
+    healthCheckPath: /api/health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.14.10
+      - key: ENVIRONMENT
+        value: production
+      - key: AGENT_EXECUTION_ENABLED
+        value: "false"
+      - key: AGENT_MANAGED_ENABLED
+        value: "false"
+      - key: AGENT_MANAGED_HTTP_ENABLED
+        value: "false"
+      - key: MONITOR_ENABLED
+        value: "false"
+      - key: ENABLE_INCIDENT_MANAGEMENT
+        value: "false"
+      - key: CORS_ORIGINS
+        sync: false

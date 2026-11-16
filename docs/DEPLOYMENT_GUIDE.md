@@ -1,3 +1,5 @@
+> Phase 5.17A: for the newly prepared real Vercel-to-Render connection use [CLOUD_OPTION_A.md](CLOUD_OPTION_A.md). The Render API is stateless/read-only, not persistent incident hosting. Nothing has been deployed. Vercel's configuration now uses build:vercel, selecting demo by default or hosted API when explicitly configured. Older demo-only instructions below remain applicable when using the explicit build:demo command.
+
 # GitHub publication and Vercel deployment preparation
 
 **Publication approved for `rrayyann7811/OpsGuard-AI`; Vercel deployment is not authorized by this release.** The isolation procedure below documents safe repository preparation; Vercel steps remain future owner actions. No paid services or AI inference are required for the public demonstration.
@@ -79,7 +81,7 @@ Use the actual remote URL GitHub displays, only in the verified isolated folder.
 
 The current frontend is a regular Next.js app with App Router and generated routes. It needs no replacement framework, separate frontend or new dependency. Vercel supports Next.js natively; a monorepo project can select the application directory. See [Next.js on Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) and [monorepo setup](https://vercel.com/docs/monorepos).
 
-The reviewed `frontend/vercel.json` selects Next.js, `npm ci` and `npm run build:demo`. Do not set an arbitrary output directory or add static-export/SPA rewrite rules; use Next.js defaults. The existing webpack path is retained.
+The reviewed `frontend/vercel.json` selects Next.js, `npm ci` and `npm run build:vercel`. Do not set an arbitrary output directory or add static-export/SPA rewrite rules; use Next.js defaults. The existing webpack path is retained.
 
 ## 4. Import into Vercel — later owner action
 
