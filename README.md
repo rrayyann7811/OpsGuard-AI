@@ -4,6 +4,14 @@
 
 OpsGuard AI is a locally runnable operations dashboard for understanding microservice failures. It monitors three Express services, receives authenticated incident events, groups repeated failures, and preserves request evidence in SQLite. Historical retrieval uses local embeddings and Qdrant; a guarded investigation workflow assembles evidence and validates structured reports for human review.
 
+## Live Demo
+
+[Launch OpsGuard AI](https://ops-guard-ai-fx4l.vercel.app)
+
+Public deployment includes a stateless FastAPI backend.
+Live microservice monitoring, persistent incident storage,
+and Ollama investigations remain local-only.
+
 ## Problem statement
 
 A failure in a distributed application can leave evidence across service logs, request histories and code changes. OpsGuard AI brings these signals together so an operator can inspect what happened, compare historical incidents and review possible causes without automatically applying a fix.
